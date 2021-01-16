@@ -1,0 +1,25 @@
+{
+  "name": "apache-logs-to-rss-subscribers",
+  "version": "1.0.0",
+  "description": "Takes Apache logs and returns a simple breakdown of your RSS subscribers by day",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benwerd/apache-logs-to-rss-subscribers.git"
+  },
+  "author": "Ben Werdmuller",
+  "license": "MIT License",
+  "bugs": {
+    "url": "https://github.com/benwerd/apache-logs-to-rss-subscribers/issues"
+  },
+  "homepage": "https://github.com/benwerd/apache-logs-to-rss-subscribers#readme",
+  "dependencies": {
+    "alpine": "^0.2.1",
+    "command-line-args": "^5.1.1",
+    "fs": "0.0.1-security",
+    "luxon": "^1.25.0"
+  }
+}
