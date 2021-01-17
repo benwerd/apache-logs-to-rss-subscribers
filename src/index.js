@@ -32,19 +32,51 @@ try {
   logParser.parseReadStream(
     fs.createReadStream(cli.input, {encoding: 'utf8'})
       .on('end', () => {
-        // Iterate through processed stats to display
-        console.log(subscribersByDay) // TODO expand this into actually useful stats :)
+
+        let totalSubscribers = {}
+
+        // Iterate over paths
+        Object.keys(subscribersByDay).forEach(path => {
+
+          // Display path
+          console.log(path)
+
+          // Iterate over days
+          Object.keys(subscribersByDay[path]).forEach(day => {
+
+            // Display day
+            console.log('  ' + day)
+
+            // Reset subscribes for that day
+            let subscribers = 0
+            if (typeof totalSubscribers[day] === 'undefined') totalSubscribers[day] = 0
+            Object.keys(subscribersByDay[path][day]).forEach(readerHost => {
+              let reader = subscribersByDay[path][day][readerHost]
+              console.log('    ' + reader.reader + ': ' + reader.subscribers)
+              subscribers += reader.subscribers
+              totalSubscribers[day] += reader.subscribers
+            })
+            console.log('Total subscribers: ' + subscribers)
+          })
+          console.log('\n')
+        })
+        console.log(totalSubscribers)
       }),
     (logLine) => {
       if (logLine['RequestHeader User-agent'].indexOf('subscribers') > -1) {
         let day = DateTime.fromFormat(logLine.time,'dd/MMM/y:HH:mm:ss ZZZ').toFormat('dd-LL-y')
-        let host = logLine.remoteHost || ''
+        let host = logLine.remoteHost || 'unknown'
         let subscribersObj = logLine['RequestHeader User-agent'].match(/([0-9]+) subscribers/)
-        if (!Array.isArray(subscribersObj)) return
-        if (typeof subscribersByDay[day] === 'undefined') subscribersByDay[day] = {}
-        subscribersByDay[day][logLine.remoteHost] = {
+        let path = logLine.request.split(' ')[1]
+
+        if (!Array.isArray(subscribersObj)) return // If we can't extract the subscribers #, assume invalid
+        if (typeof subscribersByDay[path] === 'undefined') subscribersByDay[path] = {}
+        if (typeof subscribersByDay[path][day] === 'undefined') subscribersByDay[path][day] = {}
+
+        subscribersByDay[path][day][logLine['RequestHeader User-agent']] = {
           host,
-          subscribers: subscribersObj[1],
+          path,
+          subscribers: parseInt(subscribersObj[1]),
           reader: logLine['RequestHeader User-agent']
         }
       }
